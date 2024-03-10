@@ -3,8 +3,7 @@
 
 import uuid
 from datetime import datetime
-from models.engine.file_storage import FileStorage
-from models import storage
+import models
 
 
 class BaseModel:
@@ -27,7 +26,7 @@ class BaseModel:
             self.id = str(self.id)
             self.created_at = datetime.now()
             self.updated_at = self.created_at
-            storage.new(self)
+            models.storage.new(self)
 
     @classmethod
     def convert_to_datetime_object(self, value):
@@ -44,7 +43,7 @@ class BaseModel:
                 updated_at with the current datetime
         """
         self.updated_at = datetime.now()
-        storage.save()
+        models.storage.save()
 
     def to_dict(self):
         """returns a dictionary containing all \

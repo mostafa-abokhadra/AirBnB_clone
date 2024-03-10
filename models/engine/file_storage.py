@@ -3,6 +3,16 @@
 
 import os.path
 import json
+import models
+from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 class FileStorage:
@@ -16,27 +26,25 @@ class FileStorage:
         """
         pass
 
-    def all(self):
+    def all(self, cls=None):
         """returns the dictionary __objects
         """
-        return FileStorage.__objects
+        if cls is not None:
+            new_di = {}
+            for key, value in self.__objects.items():
+                if cls == value.__class__ or cls == value.__class__.__name__:
+                    new_di[key] = value
+                return new_di
+        return self.__objects
 
     def new(self, obj):
         """ sets in __objects the obj with key <obj class name>.id
-
-        args:
-            obj: new object
         """
         key = obj.__class__.__name__ + ".{}".format(obj.id)
         FileStorage.__objects[key] = obj
 
     @staticmethod
     def to_json_string(objects):
-        """converting to json
-
-        args:
-            objects: ditionary of objects
-        """
         final_dec = {}
         for key in objects.keys():
             val = objects[key].to_dict()
@@ -52,11 +60,6 @@ class FileStorage:
 
     @staticmethod
     def from_json_string(string):
-        """converting from fson string
-
-        args:
-            string: json string
-        """
         if string:
             return json.loads(string)
         else:
@@ -66,8 +69,6 @@ class FileStorage:
         """ deserializes the JSON file to __objects
         (only if the JSON file (__file_path) exists
         """
-        from models.base_model import BaseModel
-
         if os.path.exists(FileStorage.__file_path):
             with open(FileStorage.__file_path, "r") as fily:
                 var = fily.read()
@@ -76,6 +77,8 @@ class FileStorage:
 
             objects = FileStorage.from_json_string(var)
             for key, value in objects.items():
-                FileStorage.__objects[key] = BaseModel(**value)
+                FileStorage.__objects[key] = classes[objects[key]["__class__"]](
+                    **objects[key])
+
         else:
             return
