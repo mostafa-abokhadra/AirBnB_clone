@@ -107,7 +107,7 @@ class HBNBCommand(cmd.Cmd):
             print(obj_list)
             return
 
-        args = line.split(line)
+        args = line.split()
         if args[0] not in [cls.__name__ for cls in HBNBCommand.classes]:
             print("** class doesn't exist **")
 
